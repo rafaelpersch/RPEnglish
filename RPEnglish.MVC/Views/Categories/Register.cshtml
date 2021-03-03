@@ -1,0 +1,22 @@
+﻿@model RPEnglish.MVC.Entities.Category
+
+<div class="row">
+    <div class="col-md-12 order-md-1">
+        <h4 class="mb-3">Categories</h4>
+        <form class="needs-validation" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label>Name</label>
+                    <input type="text" class="form-control" asp-for="Name" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <button class="btn btn-primary float-right" type="submit">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

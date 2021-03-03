@@ -1,0 +1,28 @@
+﻿<div class="row">
+    <div class="col-lg-12">
+        <h4>Annotations</h4>
+        <a href="/Annotations/Create" class="btn btn-primary float-right">New</a>
+    </div>
+</div>
+<br>
+<div class="row">
+    <div class="col-lg-12">
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Text</th>
+                    <th width="50px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var annotation in ViewBag.Annotations)
+                {
+                    <tr>
+                        <td><a href="/Annotations/Edit/@annotation.Id">@annotation.Text</a></td>
+                        <td><a href="/Annotations/Delete/@annotation.Id" onclick="return confirm('Deseja excluir?')">Excluir</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+﻿<div class="row">
+    <div class="col-lg-12">
+        <h4>Categories</h4>
+        <a href="/Categories/Create" class="btn btn-primary float-right">New</a>
+    </div>
+</div>
+<br>
+<div class="row">
+    <div class="col-lg-12">
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Name</th>
+                    <th width="50px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var category in ViewBag.Categories)
+                {
+                    <tr>
+                        <td><a href="/Categories/Edit/@category.Id">@category.Name</a></td>
+                        <td><a href="/Categories/Delete/@category.Id" onclick="return confirm('Deseja excluir?')">Excluir</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

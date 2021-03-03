@@ -1,0 +1,48 @@
+﻿@model RPEnglish.MVC.Entities.Word
+
+<div class="row">
+    <div class="col-md-12 order-md-1">
+        <h4 class="mb-3">Words</h4>
+        <form class="needs-validation" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label>Name</label>
+                    <input type="text" class="form-control" asp-for="Name" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label>Translation</label>
+                    <input type="text" class="form-control" asp-for="Translation" required>
+                </div>
+            </div>            
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label>Observation</label>
+                    <textarea class="form-control" asp-for="Observation" rows="4"></textarea>
+                </div>
+            </div>                        
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label>Category</label>
+                    <select asp-for="CategoryId" required class="form-control">
+                        @if(ViewBag.Categories != null)
+                        {
+                            foreach(var category in ViewBag.Categories)
+                            {
+                                <option value="@category.Id">@category.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>                                    
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <button class="btn btn-primary float-right" type="submit">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
