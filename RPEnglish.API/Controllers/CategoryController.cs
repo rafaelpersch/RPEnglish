@@ -37,86 +37,114 @@ namespace RPEnglish.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Category>> Get(Guid id)
         {
-            var category = await myDbContext.Categories.FindAsync(id);
-
-            if (category == null)
+            try
             {
-                return NotFound();
-            }
+                var category = await myDbContext.Categories.FindAsync(id);
 
-            return category;
+                if (category == null)
+                {
+                    return NotFound();
+                }
+
+                return category;                
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, Category category)
         {
-            if (category == null)
+            try
             {
-                throw new ApplicationException("Object category null");
-            }
+                if (category == null)
+                {
+                    throw new ApplicationException("Object category null");
+                }
 
-            if (id != category.Id)
+                if (id != category.Id)
+                {
+                    return BadRequest();
+                }
+
+                category.Validate();
+
+                var categorySaved = await myDbContext.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+
+                if (categorySaved == null)
+                {
+                    return NotFound();
+                }
+
+                myDbContext.Entry(category).State = EntityState.Modified;
+
+                await myDbContext.SaveChangesAsync();
+
+                return NoContent();                
+            }
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
-
-            category.Validate();
-
-            var categorySaved = await myDbContext.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-
-            if (categorySaved == null)
-            {
-                return NotFound();
-            }
-
-            myDbContext.Entry(category).State = EntityState.Modified;
-
-            await myDbContext.SaveChangesAsync();
-
-            return NoContent();
         }
 
         [HttpPost]
         public async Task<ActionResult<Category>> Post(Category category)
         {
-            if (category == null)
+            try
             {
-                throw new ApplicationException("Object category null");
+                if (category == null)
+                {
+                    throw new ApplicationException("Object category null");
+                }
+
+                category.Id = Guid.NewGuid();
+
+                category.Validate();
+
+                myDbContext.Categories.Add(category);
+
+                await myDbContext.SaveChangesAsync();
+
+                return CreatedAtAction("Get", new { id = category.Id }, category);                
             }
-
-            category.Id = Guid.NewGuid();
-
-            category.Validate();
-
-            myDbContext.Categories.Add(category);
-
-            await myDbContext.SaveChangesAsync();
-
-            return CreatedAtAction("Get", new { id = category.Id }, category);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<Category>> Delete(Guid id)
         {
-            var category = await myDbContext.Categories.FindAsync(id);
-            
-            if (category == null)
+            try
             {
-                return NotFound();
+                var category = await myDbContext.Categories.FindAsync(id);
+                
+                if (category == null)
+                {
+                    return NotFound();
+                }
+
+                var words = await myDbContext.Words.FirstOrDefaultAsync(x => x.CategoryId == id);
+
+                if (words != null)
+                {
+                    throw new ApplicationException("Category used!");
+                }
+
+                myDbContext.Categories.Remove(category);
+                
+                await myDbContext.SaveChangesAsync();
+
+                return category;                
             }
-
-            var words = await myDbContext.Words.FirstOrDefaultAsync(x => x.CategoryId == id);
-
-            if (words != null)
+            catch (Exception ex)
             {
-                throw new ApplicationException("Category used!");
-            }
-
-            myDbContext.Categories.Remove(category);
-            
-            await myDbContext.SaveChangesAsync();
-
-            return category;
+                return BadRequest(ex.Message);
+            }            
         }
     }
 }

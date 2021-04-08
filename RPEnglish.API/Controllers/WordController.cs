@@ -50,79 +50,107 @@ namespace RPEnglish.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Word>> Get(Guid id)
         {
-            var word = await myDbContext.Words.FindAsync(id);
-
-            if (word == null)
+            try
             {
-                return NotFound();
-            }
+                var word = await myDbContext.Words.FindAsync(id);
 
-            return word;
+                if (word == null)
+                {
+                    return NotFound();
+                }
+
+                return word;                
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }            
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, Word word)
         {
-            if (word == null)
+            try
             {
-                throw new ApplicationException("Object word null");
-            }
+                if (word == null)
+                {
+                    throw new ApplicationException("Object word null");
+                }
 
-            if (id != word.Id)
+                if (id != word.Id)
+                {
+                    return BadRequest();
+                }
+
+                word.Validate();
+
+                var wordSaved = await myDbContext.Words.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+
+                if (wordSaved == null)
+                {
+                    return NotFound();
+                }
+
+                myDbContext.Entry(word).State = EntityState.Modified;
+
+                await myDbContext.SaveChangesAsync();
+
+                return NoContent();                
+            }
+            catch (Exception ex)
             {
-                return BadRequest();
-            }
-
-            word.Validate();
-
-            var wordSaved = await myDbContext.Words.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-
-            if (wordSaved == null)
-            {
-                return NotFound();
-            }
-
-            myDbContext.Entry(word).State = EntityState.Modified;
-
-            await myDbContext.SaveChangesAsync();
-
-            return NoContent();
+                return BadRequest(ex.Message);
+            }            
         }
 
         [HttpPost]
         public async Task<ActionResult<Word>> Post(Word word)
         {
-            if (word == null)
+            try
             {
-                throw new ApplicationException("Object word null");
+                if (word == null)
+                {
+                    throw new ApplicationException("Object word null");
+                }
+
+                word.Id = Guid.NewGuid();
+
+                word.Validate();
+
+                myDbContext.Words.Add(word);
+
+                await myDbContext.SaveChangesAsync();
+
+                return CreatedAtAction("Get", new { id = word.Id }, word);
             }
-
-            word.Id = Guid.NewGuid();
-
-            word.Validate();
-
-            myDbContext.Words.Add(word);
-
-            await myDbContext.SaveChangesAsync();
-
-            return CreatedAtAction("Get", new { id = word.Id }, word);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }            
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<Word>> Delete(Guid id)
         {
-            var word = await myDbContext.Words.FindAsync(id);
-            
-            if (word == null)
+            try
             {
-                return NotFound();
+                var word = await myDbContext.Words.FindAsync(id);
+                
+                if (word == null)
+                {
+                    return NotFound();
+                }
+
+                myDbContext.Words.Remove(word);
+                
+                await myDbContext.SaveChangesAsync();
+
+                return word;                
             }
-
-            myDbContext.Words.Remove(word);
-            
-            await myDbContext.SaveChangesAsync();
-
-            return word;
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }            
         }        
     }
 }

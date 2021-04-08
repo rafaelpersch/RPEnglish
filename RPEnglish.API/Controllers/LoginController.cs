@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -22,28 +23,35 @@ namespace RPEnglish.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]LoginDTO credentials)
         {
-            if (credentials == null)
+            try
             {
-                return Unauthorized("Object credentials null!");
-            }
+                if (credentials == null)
+                {
+                    return Unauthorized("Object credentials null!");
+                }
 
-            if (string.IsNullOrEmpty(credentials.Email) || string.IsNullOrEmpty(credentials.Password))
+                if (string.IsNullOrEmpty(credentials.Email) || string.IsNullOrEmpty(credentials.Password))
+                {
+                    return Unauthorized("Invalid credentials!");
+                }
+
+                var userPassword = await myDbContext.UsersPassword.Include(x => x.User).FirstOrDefaultAsync(x=> x.User.Email == credentials.Email && x.Password == Cryptography.Encrypt(credentials.Email + credentials.Password));
+
+                if (userPassword == null)
+                {
+                    return Unauthorized("Invalid login!"); 
+                }
+
+                userPassword.Password = string.Empty;
+
+                var token = TokenService.GenerateToken(userPassword.User);
+
+                return Ok(new{ user = userPassword.User, token = token });                
+            }
+            catch (Exception ex)
             {
-                return Unauthorized("Invalid credentials!");
+                return BadRequest(ex.Message);
             }
-
-            var userPassword = await myDbContext.UsersPassword.Include(x => x.User).FirstOrDefaultAsync(x=> x.User.Email == credentials.Email && x.Password == Cryptography.Encrypt(credentials.Email + credentials.Password));
-
-            if (userPassword == null)
-            {
-                return Unauthorized("Invalid login!"); 
-            }
-
-            userPassword.Password = string.Empty;
-
-            var token = TokenService.GenerateToken(userPassword.User);
-
-            return Ok(new{ user = userPassword.User, token = token });
         }
     }
 }
