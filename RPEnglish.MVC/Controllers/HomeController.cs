@@ -27,7 +27,7 @@ namespace RPEnglish.MVC.Controllers
 
             if (user != null)
             {
-                return RedirectToAction("Main");
+                return RedirectToAction("Index", "Annotations");
             }
 
             if (TempData["ApplicationMessage"] != null)
